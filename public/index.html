@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Appwrite Playground</title>
+    <meta name="description" content="A simple Appwrite demo app for gettig started with API integration" />
+    <meta name="author" content="Appwrite Team" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,300,400,500,600,800" />
+    <link rel="icon" type="image/png" href="https://appwrite.io/images/favicon.png?v=1" />
+
+    <style>
+        body {
+            font-family: Poppins, sans-serif, Arial;
+            -webkit-font-smoothing: antialiased;
+            font-weight: 500;
+        }
+        #list > li:hover {
+            color: #007BFF;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#"><img src="https://appwrite.io/images/appwrite-white.svg" height="22" />
+            &nbsp;playground</a>
+    </nav>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-5 mb-5">Hello Appwriters!</h1>
+            <p class="lead">
+                Appwrite playground is a simple way to explore the Appwrite API & Web
+                SDK. Use the
+                <a href="https://github.com/appwrite/playground-for-js/blob/master/public/index.html"
+                    target="_blank">source code</a>
+                of this page to learn how to use the different Appwrite Web SDK
+                features.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="mb-5">Auth & Account</h2>
+
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="isLogged()">
+            Is Logged?
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginAnonymously()">
+            Login Anonymously
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginWithGoogle()">
+            Login With Google
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginWithFacebook()">
+            Login With Facebook
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginWithGithub()">
+            Login With Github
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginWithApple()">
+            Login With Apple
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="createJWT()">
+            Create JWT
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getUserName()">
+            Get User Name
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getUserEmail()">
+            Get User Email
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getSessions()">
+            Get User Sessions
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getLogs()">
+            Get User Logs
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="deleteSessions()">
+            Delete All Sessions
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="deleteCurrentSession()">
+            Delete Current Session
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="createTeam()">
+            Create Team
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="createTeamMembership()">
+            Create Team Membership
+        </button>
+    </div>
+
+    <hr class="mb-5" />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Register</h3>
+                <form onsubmit="register(event);">
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" class="form-control" id="register-email" placeholder="Enter email"
+                            value="demo@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" class="form-control" id="register-password" placeholder="Password"
+                            value="password" required pattern=".{6,}" title="Six or more characters" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </form>
+            </div>
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Login</h3>
+                <form onsubmit="login(event);">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" class="form-control" id="login-email" placeholder="Enter email"
+                            value="demo@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Password"
+                            value="password" required pattern=".{6,}" title="Six or more characters" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mb-5" />
+
+    <div class="container">
+        <h2 class="mb-5">Storage</h2>
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Add File</h3>
+                <div class="input-group">
+                    <div class="custom-file">
+                      <input type="file" class="custom-file-input" id="uploader" aria-describedby="inputGroupFileAddon04">
+                      <label class="custom-file-label" id="uploader-label" for="inputGroupFile04">Choose file</label>
+                    </div>
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="button" id="inputGroupFileAddon04" onclick="createFile()">Upload File</button>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">List Files</h3>
+                <button type="button" class="btn btn-primary" onclick="listFiles()">
+                    List Files
+                </button>
+                <div class="container mt-3">
+                    <div class="row">
+                        <ul id="list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <hr class="mb-5" />
+
+    <div class="container">
+        <h2 class="mb-5">Realtime</h2>
+        <p>Create files in the Storage service to see them listed here in realtime.</p>
+        <ul id="realtime" class="list-group" />
+    </div>
+
+    <hr class="mb-5" />
+
+    <div class="container">
+        <h2 class="mb-5">Locale</h2>
+
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getLocation()">
+            Get User Location
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getIP()">
+            Get User IP
+        </button>
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="isEU()">
+            Is User a Member of the EU?
+        </button>
+    </div>
+
+    <!-- Include Appwrite Web SDK before trying to create a new instance -->
+
+    <!-- Fetch the latest sdk or use an existing one -->
+    <script src="sdk.js"></script>
+
+    <script>
+
+        document.getElementById('uploader').onchange = function () {
+            document.getElementById('uploader-label').innerHTML = this.files[0].name;
+        };
+
+        // Before we start doing anything, we need to init our Appwrite Web SDK
+        const client = new Appwrite.Client();
+
+        client
+            .setEndpoint("https://8080-appwrite-appwrite-f0f48rxk0hl.ws-eu54.gitpod.io/v1") // Set your own appwrite server endpoint here, if not sure, you can get this value from your project settings page.
+            .setProject("dev"); // Your Appwrite Project UID, you can get it from your project settings page.
+
+        // Prepare all services we are going to use
+        const graphql = new Appwrite.Graphql(client);
+
+        /**
+         * Please Note!
+         *
+         * Don't ever integrate your Appwrite SDK with a secret key on client apps
+         * like browsers, Android apps, iOS apps and other client platforms
+         * like electron, XBOX and others.
+         */
+
+        const realtimeElement = document.getElementById("realtime");
+
+        client.subscribe("files", function(response) {
+            const entry = document.createElement("li");
+            const image = storage.getFilePreview('testbucket', response.payload.$id, 250);
+            const url = storage.getFileView('testbucket', response.payload.$id, 250);
+            entry.classList.add('list-group-item');
+            entry.innerHTML = `<a href="${url}" target=_blank><b>Events</b>: ${response.events}<br><img src="${image}" /></a>`;
+            realtimeElement.prepend(entry);
+        });
+
+        client.subscribe(['teams', 'memberships', 'accounts'], function(response) {
+            console.log(response)
+        });
+
+        function isLogged() {
+            let promise = graphql.query({
+                query: `{ accountGet { _id } }`
+            });
+
+            promise.then(
+                function (response) {
+                    alert("User is Logged!");
+                },
+                function (error) {
+                    alert("No User is Logged!");
+                }
+            );
+        }
+
+        function getUserName() {
+            let promise = graphql.query({
+                query: `{ accountGet { _id } }`
+            });
+
+            promise.then(
+                function (response) {
+                    alert(response.data.accountGet.name);
+                },
+                function (error) {
+                    alert("No User is Logged!");
+                }
+            );
+        }
+
+        function getUserEmail() {
+            let promise = graphql.query({
+                query: `{ accountGet { _id } }`
+            });
+
+            promise.then(
+                function (response) {
+                    alert(response.data.accountGet.email);
+                },
+                function (error) {
+                    alert("No User is Logged!");
+                }
+            );
+        }
+
+        function getSessions() {
+            let promise = graphql.query({
+                query: `{ accountGetSessions { total sessions { _id userId expires } }`
+            });
+
+            promise.then(
+                function (response) {
+                    console.log("User Sessions:", response.data.accountGetSessions.sessions);
+                    alert(
+                        "User has " +
+                        response.data.accountGetSessions.total +
+                        " active sessions. Check developer console for more info"
+                    );
+                },
+                function (error) {
+                    alert("No User is Logged!");
+                }
+            );
+        }
+
+        function getLogs() {
+            let promise = graphql.query({
+                query: `{ accountGetLogs { total logs { event } } }`
+            });
+
+            promise.then(
+                function (response) {
+                    console.log("User Logs:", response.data.accountGetLogs.logs);
+                    alert(
+                        "User has " +
+                        response.logs.length +
+                        " logs. Check developer console for more info"
+                    );
+                },
+                function (error) {
+                    alert("No User is Logged!");
+                }
+            );
+        }
+
+        function register(event) {
+            event.preventDefault();
+
+            graphql.mutate({
+                query: `mutation CreateAccount ($email: String!, $password: String!, $name: String) {
+                    accountCreate(userId: "unique()", email: $email, password: $password, name: "User Name") {
+                        _id
+                    }
+                }`,
+                variables: {
+                    email: event.target.elements["register-email"].value,
+                    password: event.target.elements["register-password"].value,
+                }
+            }).then(
+                function (response) {
+                    alert("Account created successfully!");
+                },
+                function (error) {
+                    alert("Failed to create account");
+                }
+            );
+        }
+
+        function loginAnonymously() {
+            graphql.mutate({
+                query: `mutation {
+                    accountCreateAnonymousSession {
+                        _id
+                    }
+                }`
+            }).then(
+                function (response) {
+                    alert("User logged in anonymously!");
+                },
+                function (error) {
+                    alert("Failed to login anonymously");
+                }
+            );
+        }
+
+        function createJWT() {
+            graphql.mutate({
+                query: `mutation {
+                    accountCreateJWT {
+                        _id
+                    }
+                }`
+            }).then(
+                function (response) {
+                    alert("JWT created!");
+                },
+                function (error) {
+                    alert("Failed to create JWT");
+                }
+            );
+        }
+
+        function login(event) {
+            event.preventDefault();
+
+            graphql.mutate({
+                query: `mutation CreateEmailSession ($email: String!, $password: String!) {
+                    accountCreateEmailSession(email: $email, password: $password) {
+                        _id
+                    }
+                }`,
+                variables: {
+                    email: event.target.elements["login-email"].value,
+                    password: event.target.elements["login-password"].value,
+                }
+            }).then(
+                function (response) {
+                    alert("User logged in!");
+                    client.subscribe("account", function(response) {
+                        console.log('Received Account event', response);
+                    });
+                },
+                function (error) {
+                    alert("Failed to login");
+                }
+            );
+        }
+
+        function loginWithGoogle(event) {
+            event.preventDefault();
+            /**
+             * Callback URLs are required for creating a browser
+             *  session cookie due to some browsers 3rd party cookie policy limitations,
+             *  this is not required for other client based platforms
+             */
+            graphql.mutate({
+                query: `mutation GoogleLogin (provider: String!, successUrl: String, failureUrl: String) {
+                    accountCreateOAuth2Session(
+                        provider: $provider,
+                        successUrl: $successUrl,
+                        failureUrl: $failureUrl,
+                    )
+                }`,
+                variables: {
+                    provider: "google",
+                    successUrl: "http://localhost:8000/?success",
+                    failureUrl: "http://localhost:8000/?failure",
+                }
+            }).then(
+                function (response) {
+                    alert("User logged in with Google!");
+                },
+                function (error) {
+                    alert("Failed to login with Google");
+                }
+            );
+        }
+
+        function loginWithFacebook(event) {
+            event.preventDefault();
+            /**
+             * Callback URLs are required for creating a browser
+             *  session cookie due to some browsers 3rd party cookie policy limitations,
+             *  this is not required for other client based platforms
+             */
+            graphql.mutate({
+                query: `mutation FacebookLogin (provider: String!, successUrl: String, failureUrl: String) {
+                    accountCreateOAuth2Session(
+                        provider: $provider,
+                        successUrl: $successUrl,
+                        failureUrl: $failureUrl,
+                    )
+                }`,
+                variables: {
+                    provider: "facebook",
+                    successUrl: "http://localhost:8000/?success",
+                    failureUrl: "http://localhost:8000/?failure",
+                }
+            }).then(
+                function (response) {
+                    alert("User logged in with Google!");
+                },
+                function (error) {
+                    alert("Failed to login with Google");
+                }
+            );
+        }
+
+        function loginWithGithub(event) {
+            event.preventDefault();
+            /**
+             * Callback URLs are required for creating a browser
+             *  session cookie due to some browsers 3rd party cookie policy limitations,
+             *  this is not required for other client based platforms
+             */
+            graphql.mutate({
+                query: `mutation GitHubLogin (provider: String!, successUrl: String, failureUrl: String) {
+                    accountCreateOAuth2Session(
+                        provider: $provider,
+                        successUrl: $successUrl,
+                        failureUrl: $failureUrl,
+                    )
+                }`,
+                variables: {
+                    provider: "github",
+                    successUrl: "http://localhost:8000/?success",
+                    failureUrl: "http://localhost:8000/?failure",
+                }
+            }).then(
+                function (response) {
+                    alert("User logged in with Github!");
+                },
+                function (error) {
+                    alert("Failed to login with Github");
+                }
+            );
+        }
+
+        function loginWithApple(event) {
+            event.preventDefault();
+            /**
+             * Callback URLs are required for creating a browser
+             *  session cookie due to some browsers 3rd party cookie policy limitations,
+             *  this is not required for other client based platforms
+             */
+            graphql.mutate({
+                query: `mutation AppleLogin (provider: String!, successUrl: String, failureUrl: String) {
+                    accountCreateOAuth2Session(
+                        provider: $provider,
+                        successUrl: $successUrl,
+                        failureUrl: $failureUrl,
+                    )
+                }`,
+                variables: {
+                    provider: "apple",
+                    successUrl: "http://localhost:8000/?success",
+                    failureUrl: "http://localhost:8000/?failure",
+                }
+            }).then(
+                function (response) {
+                    alert("User logged in with Google!");
+                },
+                function (error) {
+                    alert("Failed to login with Google");
+                }
+            );
+        }
+
+        function deleteSessions() {
+            graphql.mutate({
+                query: `mutation {
+                    accountDeleteSessions
+                }`
+            }).then(
+                function (response) {
+                    alert("Sessions deleted!");
+                },
+                function (error) {
+                    alert("Failed to delete sessions");
+                }
+            );
+        }
+
+        function deleteCurrentSession() {
+            graphql.mutate({
+                query: `mutation {
+                    accountDeleteSession(sessionId: "current")
+                }`
+            }).then(
+                function (response) {
+                    alert("Current session deleted!");
+                },
+                function (error) {
+                    alert("Failed to delete current session");
+                }
+            );
+        }
+
+        function createTeam() {
+            graphql.mutate({
+                query: `mutation CreateTeam ($teamId: $teamId, $name: String!) {
+                    teamCreate(teamId: $teamId, name: $name) {
+                        _id
+                    }
+                }`,
+                variables: {
+                    teamId: "team-1",
+                    name: "My Team",
+                }
+            }).then(
+                function (response) {
+                    alert("Team created!");
+                },
+                function (error) {
+                    alert("Failed to create team");
+                }
+            );
+        }
+
+        function createTeamMembership() {
+            let random = Math.floor(1000 + Math.random() * 9000);
+            let email = "test+" + random + "@test.com";
+
+            graphql.mutate({
+                query: `mutation CreateTeamMembership ($teamId: String!, $email: String!, $roles: [String!]!, $url: String!) {
+                    teamCreateMembership(teamId: $teamId, email: $email, roles: $roles, url: $url) {
+                        _id
+                    }
+                }`,
+                variables: {
+                    teamId: "team-1",
+                    email: email,
+                    roles: ["admin"],
+                    url: "http://localhost",
+                }
+            }).then(
+                function (response) {
+                    alert("Team membership created!");
+                },
+                function (error) {
+                    alert("Failed to create team membership");
+                }
+            );
+        }
+
+        function createFile() {
+            let promise = storage.createFile('testbucket', 'unique()', document.getElementById('uploader').files[0]);
+
+            promise.then(function (response) {
+                console.log(response); // Success
+                alert("File uploaded successfully");
+            }, function (error) {
+                console.log(error); // Failure
+            });
+        }
+
+        function listFiles() {
+            graphql.query({
+                query: `query ListFiles ($bucketId: String!) {
+                    storageListFiles(bucketId: $bucketId) {
+                        _id
+                        name
+                        bucket
+                        size
+                        createdAt
+                        updatedAt
+                    }
+                }`,
+                variables: {
+                    bucketId: "testbucket",
+                }
+            }).then(
+                function (response) {
+                    const ul = document.getElementById("list");
+                    ul.innerHTML = '';
+                    for(let i=1; i<=response.total; i++){
+                        const li = document.createElement("li");
+                        li.innerHTML = response.files[i-1].name;
+                        console.log(response.files[i-1].$id);
+                        li.onclick = function () {
+                            getFile(response.files[i-1].$id);
+                        };
+                        ul.appendChild(li);
+                    }
+                    console.log(response); // Success
+                },
+                function (error) {
+                    console.log(error); // Failure
+                }
+            );
+        }
+
+        function getFile(file_id) {
+            graphql.query({
+                query: `query GetFile ($bucketId: String!, $fileId: String!) {
+                    storageGetFile(bucketId: $bucketId, fileId: $fileId) {
+                        _id
+                        _createdAt
+                        _updatedAt
+                        name
+                        bucket
+                        size
+                    }
+                }`,
+                variables: {
+                    bucketId: "testbucket",
+                    fileId: file_id,
+                }
+            }).then(
+                function (response) {
+                    console.log(response); // Success
+                    alert("File downloaded successfully");
+                },
+                function (error) {
+                    console.log(error); // Failure
+                }
+            );
+        }
+
+        function getLocation() {
+            graphql.query({
+                query: `query {
+                    localeGet {
+                        country
+                        countryName
+                    }
+                }`
+            }).then(
+                function (response) {
+                    alert(
+                        "User is from " +
+                        response.data.localeGet.country +
+                        ", country code is: " +
+                        response.data.localeGet.countryCode
+                    );
+                },
+                function (error) {
+                    console.log(error); // Failure
+                }
+            );
+        }
+
+        function getIP() {
+            graphql.query({
+                query: `query {
+                    localeGet {
+                        ip
+                    }
+                }`
+            }).then(
+                function (response) {
+                    alert("User IP is " + response.data.localeGet.ip);
+                },
+                function (error) {
+                    console.log(error); // Failure
+                }
+            );
+        }
+
+        function isEU() {
+            graphql.query({
+                query: `query {
+                    localeGet {
+                        eu
+                    }
+                }`
+            }).then(
+                function (response) {
+                    alert(
+                        response.data.localeGet.eu
+                            ? "User is a member of the EU"
+                            : "User is not a member of the EU"
+                    );
+                },
+                function (error) {
+                    console.log(error); // Failure
+                }
+            );
+        }
+
+      // let promise = appwrite.database.createDocument('5dac4fc8d9f0c', {
+      //     'completed': true,
+      //     'text': 'a new task',
+      // }, ['*'], ['*']);
+
+      // let promise = appwrite.database.createDocument('5dac4fc8d9f0c', {
+      //     'completed': true,
+      //     'text': 'a new task',
+      // });
+
+      // let promise = appwrite.database.createDocument('5dac4fc8d9f0c', {
+      //     'completed': true,
+      //     'text': 'a new task',
+      // }, ['user:{self}'], ['user:{self}']);
+
+      // console.log('[INFO] Adding Todo');
+      // promise.then(function(response) {
+      //     console.log(response);
+      // }, function(error) {
+      //     console.log(error);
+      // });
+    </script>
+</body>
+
+</html>

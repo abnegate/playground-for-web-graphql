@@ -1,0 +1,28 @@
+{
+  "name": "appwrite-playground-for-js",
+  "version": "1.0.0",
+  "description": "Appwrite playground is a simple way to explore the Appwrite API & Web SDK. Use the source code of this page to learn how to use the different Appwrite Web SDK features.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appwrite/playground-for-js.git"
+  },
+  "keywords": [
+    "appwrite"
+  ],
+  "author": "Team Appwrite",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/appwrite/playground-for-js/issues"
+  },
+  "homepage": "https://github.com/appwrite/playground-for-js#readme",
+  "dependencies": {
+    "appwrite": "^8.0.1",
+    "express": "^4.18.1",
+    "node-appwrite": "5.0.0"
+  }
+}
