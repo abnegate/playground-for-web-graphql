@@ -34,7 +34,7 @@
         <div class="container">
             <h1 class="display-5 mb-5">Hello Appwriters!</h1>
             <p class="lead">
-                Appwrite playground is a simple way to explore the Appwrite API & Web
+                Appwrite playground is a simple way to explore the Appwrite <b>GraphQL</b> API & Web
                 SDK. Use the
                 <a href="https://github.com/appwrite/playground-for-js/blob/master/public/index.html"
                     target="_blank">source code</a>
@@ -169,7 +169,7 @@
     <div class="container">
         <h2 class="mb-5">Realtime</h2>
         <p>Create files in the Storage service to see them listed here in realtime.</p>
-        <ul id="realtime" class="list-group" />
+        <ul id="realtime" class="list-group"></ul>
     </div>
 
     <hr class="mb-5" />
@@ -219,10 +219,20 @@
 
         const realtimeElement = document.getElementById("realtime");
 
-        client.subscribe("files", function(response) {
+        client.subscribe("files", async function(response) {
             const entry = document.createElement("li");
-            const image = storage.getFilePreview('testbucket', response.payload.$id, 250);
-            const url = storage.getFileView('testbucket', response.payload.$id, 250);
+            const bytes = await graphql.query({
+                query: `query GetFilePreview ($bucketId: String!, $fileId: String!, $width: Int) {
+                    storageGetFilePreview(bucketId: $bucketId, fileId: $fileId, width: $width)
+                }`,
+                variables: {
+                    bucketId: "testbucket",
+                    fileId: response.payload.$id,
+                    width: 250,
+                }
+            })
+            let image = `data:image/jpg;base64,${btoa(bytes)}`;
+
             entry.classList.add('list-group-item');
             entry.innerHTML = `<a href="${url}" target=_blank><b>Events</b>: ${response.events}<br><img src="${image}" /></a>`;
             realtimeElement.prepend(entry);
@@ -239,9 +249,11 @@
 
             promise.then(
                 function (response) {
+                    console.log(response);
                     alert("User is Logged!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("No User is Logged!");
                 }
             );
@@ -249,14 +261,16 @@
 
         function getUserName() {
             let promise = graphql.query({
-                query: `{ accountGet { _id } }`
+                query: `{ accountGet { name } }`
             });
 
             promise.then(
                 function (response) {
+                    console.log(response);
                     alert(response.data.accountGet.name);
                 },
                 function (error) {
+                    console.error(error);
                     alert("No User is Logged!");
                 }
             );
@@ -264,14 +278,16 @@
 
         function getUserEmail() {
             let promise = graphql.query({
-                query: `{ accountGet { _id } }`
+                query: `{ accountGet { email } }`
             });
 
             promise.then(
                 function (response) {
+                    console.log(response);
                     alert(response.data.accountGet.email);
                 },
                 function (error) {
+                    console.error(error);
                     alert("No User is Logged!");
                 }
             );
@@ -279,7 +295,7 @@
 
         function getSessions() {
             let promise = graphql.query({
-                query: `{ accountGetSessions { total sessions { _id userId expires } }`
+                query: `{ accountGetSessions { total sessions { _id userId expire } } }`
             });
 
             promise.then(
@@ -292,6 +308,7 @@
                     );
                 },
                 function (error) {
+                    console.error(error);
                     alert("No User is Logged!");
                 }
             );
@@ -307,11 +324,12 @@
                     console.log("User Logs:", response.data.accountGetLogs.logs);
                     alert(
                         "User has " +
-                        response.logs.length +
+                        response.data.accountGetLogs.total +
                         " logs. Check developer console for more info"
                     );
                 },
                 function (error) {
+                    console.error(error);
                     alert("No User is Logged!");
                 }
             );
@@ -322,7 +340,7 @@
 
             graphql.mutate({
                 query: `mutation CreateAccount ($email: String!, $password: String!, $name: String) {
-                    accountCreate(userId: "unique()", email: $email, password: $password, name: "User Name") {
+                    accountCreate(userId: "unique()", email: $email, password: $password, name: $name) {
                         _id
                     }
                 }`,
@@ -332,9 +350,11 @@
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("Account created successfully!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to create account");
                 }
             );
@@ -349,9 +369,11 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("User logged in anonymously!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to login anonymously");
                 }
             );
@@ -366,9 +388,11 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("JWT created!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to create JWT");
                 }
             );
@@ -389,73 +413,70 @@
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("User logged in!");
                     client.subscribe("account", function(response) {
                         console.log('Received Account event', response);
                     });
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to login");
                 }
             );
         }
 
         function loginWithGoogle(event) {
-            event.preventDefault();
+            //event.preventDefault();
             /**
              * Callback URLs are required for creating a browser
              *  session cookie due to some browsers 3rd party cookie policy limitations,
              *  this is not required for other client based platforms
              */
             graphql.mutate({
-                query: `mutation GoogleLogin (provider: String!, successUrl: String, failureUrl: String) {
-                    accountCreateOAuth2Session(
-                        provider: $provider,
-                        successUrl: $successUrl,
-                        failureUrl: $failureUrl,
-                    )
+                query: `query GoogleLogin ($provider: String!, $success: String, $failure: String) {
+                    accountCreateOAuth2Session(provider: $provider, success: $success, failure: $failure)
                 }`,
                 variables: {
                     provider: "google",
-                    successUrl: "http://localhost:8000/?success",
-                    failureUrl: "http://localhost:8000/?failure",
+                    success: "http://localhost:8000/?success",
+                    failure: "http://localhost:8000/?failure",
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("User logged in with Google!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to login with Google");
                 }
             );
         }
 
         function loginWithFacebook(event) {
-            event.preventDefault();
             /**
              * Callback URLs are required for creating a browser
              *  session cookie due to some browsers 3rd party cookie policy limitations,
              *  this is not required for other client based platforms
              */
             graphql.mutate({
-                query: `mutation FacebookLogin (provider: String!, successUrl: String, failureUrl: String) {
-                    accountCreateOAuth2Session(
-                        provider: $provider,
-                        successUrl: $successUrl,
-                        failureUrl: $failureUrl,
-                    )
+                query: `query FacebookLogin ($provider: String!, $success: String, $failure: String) {
+                    accountCreateOAuth2Session(provider: $provider, success: $success, failure: $failure)
                 }`,
                 variables: {
                     provider: "facebook",
-                    successUrl: "http://localhost:8000/?success",
-                    failureUrl: "http://localhost:8000/?failure",
+                    success: "http://localhost:8000/?success",
+                    failure: "http://localhost:8000/?failure",
                 }
             }).then(
                 function (response) {
-                    alert("User logged in with Google!");
+                    console.log(response);
+                    alert("User logged in with Facebook!");
                 },
                 function (error) {
-                    alert("Failed to login with Google");
+                    console.error(error);
+                    alert("Failed to login with Facebook");
                 }
             );
         }
@@ -468,23 +489,21 @@
              *  this is not required for other client based platforms
              */
             graphql.mutate({
-                query: `mutation GitHubLogin (provider: String!, successUrl: String, failureUrl: String) {
-                    accountCreateOAuth2Session(
-                        provider: $provider,
-                        successUrl: $successUrl,
-                        failureUrl: $failureUrl,
-                    )
+                query: `query FacebookLogin ($provider: String!, $success: String, $failure: String) {
+                    accountCreateOAuth2Session(provider: $provider, success: $success, failure: $failure)
                 }`,
                 variables: {
                     provider: "github",
-                    successUrl: "http://localhost:8000/?success",
-                    failureUrl: "http://localhost:8000/?failure",
+                    success: "http://localhost:8000/?success",
+                    failure: "http://localhost:8000/?failure",
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("User logged in with Github!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to login with Github");
                 }
             );
@@ -498,23 +517,25 @@
              *  this is not required for other client based platforms
              */
             graphql.mutate({
-                query: `mutation AppleLogin (provider: String!, successUrl: String, failureUrl: String) {
+                query: `mutation AppleLogin (provider: String!, success: String, failure: String) {
                     accountCreateOAuth2Session(
                         provider: $provider,
-                        successUrl: $successUrl,
-                        failureUrl: $failureUrl,
+                        success: $success,
+                        failure: $failure,
                     )
                 }`,
                 variables: {
                     provider: "apple",
-                    successUrl: "http://localhost:8000/?success",
-                    failureUrl: "http://localhost:8000/?failure",
+                    success: "http://localhost:8000/?success",
+                    failure: "http://localhost:8000/?failure",
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("User logged in with Google!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to login with Google");
                 }
             );
@@ -527,9 +548,11 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("Sessions deleted!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to delete sessions");
                 }
             );
@@ -542,9 +565,11 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("Current session deleted!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to delete current session");
                 }
             );
@@ -552,8 +577,8 @@
 
         function createTeam() {
             graphql.mutate({
-                query: `mutation CreateTeam ($teamId: $teamId, $name: String!) {
-                    teamCreate(teamId: $teamId, name: $name) {
+                query: `mutation CreateTeam ($teamId: String!, $name: String!) {
+                    teamsCreate(teamId: $teamId, name: $name) {
                         _id
                     }
                 }`,
@@ -563,9 +588,11 @@
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("Team created!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to create team");
                 }
             );
@@ -577,7 +604,7 @@
 
             graphql.mutate({
                 query: `mutation CreateTeamMembership ($teamId: String!, $email: String!, $roles: [String!]!, $url: String!) {
-                    teamCreateMembership(teamId: $teamId, email: $email, roles: $roles, url: $url) {
+                    teamsCreateMembership(teamId: $teamId, email: $email, roles: $roles, url: $url) {
                         _id
                     }
                 }`,
@@ -589,35 +616,58 @@
                 }
             }).then(
                 function (response) {
+                    console.log(response);
                     alert("Team membership created!");
                 },
                 function (error) {
+                    console.error(error);
                     alert("Failed to create team membership");
                 }
             );
         }
 
         function createFile() {
-            let promise = storage.createFile('testbucket', 'unique()', document.getElementById('uploader').files[0]);
-
-            promise.then(function (response) {
-                console.log(response); // Success
-                alert("File uploaded successfully");
-            }, function (error) {
-                console.log(error); // Failure
-            });
+            graphql.mutate({
+                operations: JSON.stringify({
+                    query: `mutation CreateFile ($bucketId: String!, $fileId: String!, $file: String!, $permissions: String!, $read: [String!]!, $write: [String!]!) {
+                        storageCreateFile(bucketId: $bucketId, fileId: $fileId, file: $file, permissions: $permissions, read: $read, write: $write) {
+                            _id
+                        }
+                    }`,
+                    variables: {
+                        bucketId: "testbucket",
+                        fileId: "unique()",
+                        file: null,
+                        permissions: "file",
+                        read: ["role:all"],
+                        write: ["role:member"],
+                    }
+                }),
+                map: JSON.stringify({
+                    file: ["variables.file"]
+                }),
+                file: document.getElementById('uploader').files[0],
+            }).then(
+                function (response) {
+                    console.log(response);
+                    alert("File created!");
+                },
+                function (error) {
+                    console.error(error);
+                    alert("Failed to create file");
+                }
+            );
         }
 
         function listFiles() {
             graphql.query({
                 query: `query ListFiles ($bucketId: String!) {
                     storageListFiles(bucketId: $bucketId) {
-                        _id
-                        name
-                        bucket
-                        size
-                        createdAt
-                        updatedAt
+                        total
+                        files {
+                            _id
+                            name
+                        }
                     }
                 }`,
                 variables: {
@@ -627,12 +677,12 @@
                 function (response) {
                     const ul = document.getElementById("list");
                     ul.innerHTML = '';
-                    for(let i=1; i<=response.total; i++){
+                    for(let i=1; i<=response.data.storageListFiles.total; i++){
                         const li = document.createElement("li");
-                        li.innerHTML = response.files[i-1].name;
-                        console.log(response.files[i-1].$id);
+                        li.innerHTML = response.data.storageListFiles.files[i-1].name;
+                        console.log(response.data.storageListFiles.files[i-1]._id);
                         li.onclick = function () {
-                            getFile(response.files[i-1].$id);
+                            getFile(response.data.storageListFiles.files[i-1]._id);
                         };
                         ul.appendChild(li);
                     }
@@ -676,11 +726,12 @@
                 query: `query {
                     localeGet {
                         country
-                        countryName
+                        countryCode
                     }
                 }`
             }).then(
                 function (response) {
+                    console.log(response); // Success
                     alert(
                         "User is from " +
                         response.data.localeGet.country +
@@ -703,6 +754,7 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response); // Success
                     alert("User IP is " + response.data.localeGet.ip);
                 },
                 function (error) {
@@ -720,6 +772,7 @@
                 }`
             }).then(
                 function (response) {
+                    console.log(response); // Success
                     alert(
                         response.data.localeGet.eu
                             ? "User is a member of the EU"

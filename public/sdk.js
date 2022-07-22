@@ -1957,11 +1957,12 @@
                 let path = '/graphql';
                 let payload = {};
                 if (typeof query !== 'undefined') {
-                    payload['query'] = query;
+                    payload['query'] = JSON.stringify(query);
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
                     'content-type': 'application/json',
+                    'x-sdk-graphql': 'true',
                 }, payload);
             });
         }
@@ -1982,11 +1983,12 @@
                 let path = '/graphql';
                 let payload = {};
                 if (typeof query !== 'undefined') {
-                    payload['query'] = query;
+                    payload['query'] = JSON.stringify(query);
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('post', uri, {
                     'content-type': 'application/json',
+                    'x-sdk-graphql': 'true',
                 }, payload);
             });
         }
