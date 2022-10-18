@@ -207,9 +207,72 @@
     <hr class="mb-5" />
 
     <div class="container">
-        <h2 class="mb-5">Realtime</h2>
-        <p>Create files in the Storage service to see them listed here in realtime.</p>
-        <ul id="realtime" class="list-group"></ul>
+        <h2 class="mb-5">Databases</h2>
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Add Document</h3>
+                <form onsubmit="createDocument(event)">
+                    <div class="form-group">
+                        <label for="create-document-id">Name</label>
+                        <input required type="text" class="form-control" id="create-document-id" placeholder="Enter document name data" value="GraphQL" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">List Documents</h3>
+                <button type="button" class="btn btn-primary" onclick="listDocuments()">
+                    List Documents
+                </button>
+                <div class="container mt-3">
+                    <div class="row">
+                        <ul id="document-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Get Document</h3>
+                <form onsubmit="getDocument(event)">
+                    <div class="form-group">
+                        <label for="get-document-id">Document ID</label>
+                        <input required type="text" class="form-control" id="get-document-id" placeholder="Enter document ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get</button>
+                </form>
+            </div>
+
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Update Document</h3>
+                <form onsubmit="updateDocument(event)">
+                    <div class="form-group">
+                        <label for="update-document-id">Document ID</label>
+                        <input required type="text" class="form-control" id="update-document-id" placeholder="Enter document ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <div class="form-group">
+                        <label for="update-document-name">New Name</label>
+                        <input required type="text" class="form-control" id="update-document-name" placeholder="New name" value="Updated Name" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Delete Document</h3>
+                <form onsubmit="deleteDocument(event)">
+                    <div class="form-group">
+                        <label for="delete-document-id">Document ID</label>
+                        <input required type="text" class="form-control" id="delete-document-id" placeholder="Enter document ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mb-5" />
+
     </div>
 
     <hr class="mb-5" />
