@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Appwrite Playground</title>
-    <meta name="description" content="A simple Appwrite demo app for gettig started with API integration" />
+    <title>Appwrite GraphQL Playground</title>
+    <meta name="description" content="A simple Appwrite demo app for getting started with GraphQL API integration" />
     <meta name="author" content="Appwrite Team" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
@@ -36,21 +36,21 @@
         <div class="container">
             <h1 class="display-5 mb-5">Hello Appwriters!</h1>
             <p class="lead">
-                Appwrite playground is a simple way to explore the Appwrite <b>GraphQL</b> API & Web
-                SDK. Use the
-                <a href="https://github.com/appwrite/playground-for-web-graphql/blob/master/public/index.html"
-                    target="_blank">source code</a>
-                of this page to learn how to use the different Appwrite Web SDK
-                GraphQL features.
+                Appwrite playground is a simple way to explore the Appwrite <b>GraphQL</b> API and Web
+                SDK. Use the <a href="https://github.com/appwrite/playground-for-web-graphql/blob/master/public/index.html" target="_blank">source code</a>
+                of this page to learn how to use the different Appwrite GraphQL features.
+                <br />
+                <br />
+                Check the <b>developer console</b> for the full response of each request.
             </p>
         </div>
     </div>
 
     <div class="container">
-        <h2 class="mb-5">Auth & Account</h2>
+        <h2 class="mb-5">Authentication</h2>
 
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="isLogged()">
-            Is Logged?
+            Is Logged In?
         </button>
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="loginAnonymously()">
             Login Anonymously
@@ -70,17 +70,17 @@
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="createJWT()">
             Create JWT
         </button>
-        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getUserName()">
-            Get User Name
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getAccountName()">
+            Get Account Name
         </button>
-        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getUserEmail()">
-            Get User Email
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getAccountEmail()">
+            Get Account Email
         </button>
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getSessions()">
-            Get User Sessions
+            Get Account Sessions
         </button>
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getLogs()">
-            Get User Logs
+            Get Account Logs
         </button>
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="deleteSessions()">
             Delete All Sessions
