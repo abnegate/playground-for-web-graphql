@@ -164,7 +164,45 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Get File</h3>
+                <form onsubmit="getFile(event)">
+                    <div class="form-group">
+                        <label for="get-file-id">File ID</label>
+                        <input required type="text" class="form-control" id="get-file-id" placeholder="Enter file ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get</button>
+                </form>
+            </div>
 
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Update File</h3>
+                <form onsubmit="updateFile(event)">
+                    <div class="form-group">
+                        <label for="update-file-id">File ID</label>
+                        <input required type="text" class="form-control" id="update-file-id" placeholder="Enter file ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <div class="form-group">
+                        <label for="update-file-name">New Name</label>
+                        <input required type="text" class="form-control" id="update-file-name" placeholder="New name" value="Updated Name" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Delete File</h3>
+                <form onsubmit="deleteFile(event)">
+                    <div class="form-group">
+                        <label for="delete-file-id">File ID</label>
+                        <input required type="text" class="form-control" id="delete-file-id" placeholder="Enter file ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <hr class="mb-5" />
 
