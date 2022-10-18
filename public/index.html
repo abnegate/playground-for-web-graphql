@@ -273,6 +273,41 @@
 
     <hr class="mb-5" />
 
+    <div class="container">
+        <h2 class="mb-5">Functions</h2>
+        <div class="row">
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Create Execution</h3>
+                <form onsubmit="createExecution(event)">
+                    <div class="form-group">
+                        <label for="create-execution-id">Function ID</label>
+                        <input required type="text" class="form-control" id="create-execution-id" placeholder="Enter function ID" value="62afef3456fdg3agj" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Execute</button>
+                </form>
+            </div>
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">List Executions</h3>
+                <button type="button" class="btn btn-primary" onclick="listExecutions()">
+                    List Executions
+                </button>
+                <div class="container mt-3">
+                    <div class="row">
+                        <ul id="execution-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm mb-5">
+                <h3 class="mb-4">Get Execution</h3>
+                <form onsubmit="getExecution(event)">
+                    <div class="form-group">
+                        <label for="get-execution-id">Execution ID</label>
+                        <input required type="text" class="form-control" id="get-execution-id" placeholder="Enter execution ID" value="62af4fvgf5sdgy63bdf" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <hr class="mb-5" />
