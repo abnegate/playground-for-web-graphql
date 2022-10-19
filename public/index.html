@@ -76,10 +76,10 @@
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getAccountEmail()">
             Get Account Email
         </button>
-        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getSessions()">
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="listSessions()">
             Get Account Sessions
         </button>
-        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="getLogs()">
+        <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="listLogs()">
             Get Account Logs
         </button>
         <button type="button" class="btn btn-primary btn-lg mr-4 mb-4" onclick="deleteSessions()">
@@ -437,7 +437,7 @@
             });
         }
 
-        function getSessions() {
+        function listSessions() {
             let promise = graphql.post({
                 query: `{ accountListSessions { total sessions { userId } } }`
             });
@@ -454,7 +454,7 @@
             });
         }
 
-        function getLogs() {
+        function listLogs() {
             let promise = graphql.post({
                 query: `{ accountListLogs { total logs { event } } }`
             });
@@ -671,7 +671,7 @@
 
         function deleteSessions() {
             graphql.post({
-                query: `mutation { accountDeleteSessions }`
+                query: `mutation { accountDeleteSessions { status } }`
             }).then(function (response) {
                 console.log(response);
 
@@ -686,7 +686,7 @@
 
         function deleteCurrentSession() {
             graphql.post({
-                query: `mutation { accountDeleteSession(sessionId: "current") }`
+                query: `mutation { accountDeleteSession(sessionId: "current") { status } }`
             }).then(function (response) {
                 console.log(response);
 
