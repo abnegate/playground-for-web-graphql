@@ -49,19 +49,25 @@
 
     class Query {
     }
-    Query.equal = (attribute, value) => Query.addQuery(attribute, 'equal', value);
-    Query.notEqual = (attribute, value) => Query.addQuery(attribute, 'notEqual', value);
-    Query.lesser = (attribute, value) => Query.addQuery(attribute, 'lesser', value);
-    Query.lesserEqual = (attribute, value) => Query.addQuery(attribute, 'lesserEqual', value);
-    Query.greater = (attribute, value) => Query.addQuery(attribute, 'greater', value);
-    Query.greaterEqual = (attribute, value) => Query.addQuery(attribute, 'greaterEqual', value);
-    Query.search = (attribute, value) => Query.addQuery(attribute, 'search', value);
-    Query.addQuery = (attribute, oper, value) => value instanceof Array
-        ? `${attribute}.${oper}(${value
+    Query.equal = (attribute, value) => Query.addQuery(attribute, "equal", value);
+    Query.notEqual = (attribute, value) => Query.addQuery(attribute, "notEqual", value);
+    Query.lessThan = (attribute, value) => Query.addQuery(attribute, "lessThan", value);
+    Query.lessThanEqual = (attribute, value) => Query.addQuery(attribute, "lessThanEqual", value);
+    Query.greaterThan = (attribute, value) => Query.addQuery(attribute, "greaterThan", value);
+    Query.greaterThanEqual = (attribute, value) => Query.addQuery(attribute, "greaterThanEqual", value);
+    Query.search = (attribute, value) => Query.addQuery(attribute, "search", value);
+    Query.orderDesc = (attribute) => `orderDesc("${attribute}")`;
+    Query.orderAsc = (attribute) => `orderAsc("${attribute}")`;
+    Query.cursorAfter = (documentId) => `cursorAfter("${documentId}")`;
+    Query.cursorBefore = (documentId) => `cursorBefore("${documentId}")`;
+    Query.limit = (limit) => `limit(${limit})`;
+    Query.offset = (offset) => `offset(${offset})`;
+    Query.addQuery = (attribute, method, value) => value instanceof Array
+        ? `${method}("${attribute}", [${value
         .map((v) => Query.parseValues(v))
-        .join(',')})`
-        : `${attribute}.${oper}(${Query.parseValues(value)})`;
-    Query.parseValues = (value) => typeof value === 'string' || value instanceof String
+        .join(",")}])`
+        : `${method}("${attribute}", [${Query.parseValues(value)}])`;
+    Query.parseValues = (value) => typeof value === "string" || value instanceof String
         ? `"${value}"`
         : `${value}`;
 
@@ -85,8 +91,11 @@
                 locale: '',
             };
             this.headers = {
-                'x-sdk-version': 'appwrite:web:9.0.1',
-                'X-Appwrite-Response-Format': '0.15.0',
+                'x-sdk-name': 'Web',
+                'x-sdk-platform': 'client',
+                'x-sdk-language': 'web',
+                'x-sdk-version': '10.1.0',
+                'X-Appwrite-Response-Format': '1.0.0',
             };
             this.realtime = {
                 socket: undefined,
@@ -393,6 +402,9 @@
     }
 
     class Account extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * Get Account
          *
@@ -521,25 +533,21 @@
             });
         }
         /**
-         * Get Account Logs
+         * List Account Logs
          *
          * Get currently logged in user list of latest security activity logs. Each
          * log returns user IP address, location and date and time of log.
          *
-         * @param {number} limit
-         * @param {number} offset
+         * @param {string[]} queries
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getLogs(limit, offset) {
+        listLogs(queries) {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/account/logs';
                 let payload = {};
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
+                if (typeof queries !== 'undefined') {
+                    payload['queries'] = queries;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -612,23 +620,23 @@
          * /account/verification/phone](/docs/client/account#accountCreatePhoneVerification)
          * endpoint to send a confirmation SMS.
          *
-         * @param {string} number
+         * @param {string} phone
          * @param {string} password
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        updatePhone(number, password) {
+        updatePhone(phone, password) {
             return __awaiter(this, void 0, void 0, function* () {
-                if (typeof number === 'undefined') {
-                    throw new AppwriteException('Missing required parameter: "number"');
+                if (typeof phone === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "phone"');
                 }
                 if (typeof password === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "password"');
                 }
                 let path = '/account/phone';
                 let payload = {};
-                if (typeof number !== 'undefined') {
-                    payload['number'] = number;
+                if (typeof phone !== 'undefined') {
+                    payload['phone'] = phone;
                 }
                 if (typeof password !== 'undefined') {
                     payload['password'] = password;
@@ -664,7 +672,7 @@
          * stored as is, and replaces any previous value. The maximum allowed prefs
          * size is 64kB and throws error if exceeded.
          *
-         * @param {Partial<Preferences>} prefs
+         * @param {object} prefs
          * @throws {AppwriteException}
          * @returns {Promise}
          */
@@ -778,7 +786,7 @@
             });
         }
         /**
-         * Get Account Sessions
+         * List Account Sessions
          *
          * Get currently logged in user list of active sessions across different
          * devices.
@@ -786,7 +794,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getSessions() {
+        listSessions() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/account/sessions';
                 let payload = {};
@@ -1020,25 +1028,25 @@
          * is valid for 15 minutes.
          *
          * @param {string} userId
-         * @param {string} number
+         * @param {string} phone
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        createPhoneSession(userId, number) {
+        createPhoneSession(userId, phone) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof userId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "userId"');
                 }
-                if (typeof number === 'undefined') {
-                    throw new AppwriteException('Missing required parameter: "number"');
+                if (typeof phone === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "phone"');
                 }
                 let path = '/account/sessions/phone';
                 let payload = {};
                 if (typeof userId !== 'undefined') {
                     payload['userId'] = userId;
                 }
-                if (typeof number !== 'undefined') {
-                    payload['number'] = number;
+                if (typeof phone !== 'undefined') {
+                    payload['phone'] = phone;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('post', uri, {
@@ -1047,7 +1055,7 @@
             });
         }
         /**
-         * Create Phone session (confirmation)
+         * Create Phone Session (confirmation)
          *
          * Use this endpoint to complete creating a session with SMS. Use the
          * **userId** from the
@@ -1309,6 +1317,9 @@
     }
 
     class Avatars extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * Get Browser Icon
          *
@@ -1425,7 +1436,8 @@
          *
          * You can use this endpoint to show different country flags icons to your
          * users. The code argument receives the 2 letter country code. Use width,
-         * height and quality arguments to change the output settings.
+         * height and quality arguments to change the output settings. Country codes
+         * follow the [ISO 3166-1](http://en.wikipedia.org/wiki/ISO_3166-1) standard.
          *
          * When one dimension is specified and the other is 0, the image is scaled
          * with preserved aspect ratio. If both dimensions are 0, the API provides an
@@ -1527,12 +1539,11 @@
          * @param {string} name
          * @param {number} width
          * @param {number} height
-         * @param {string} color
          * @param {string} background
          * @throws {AppwriteException}
          * @returns {URL}
          */
-        getInitials(name, width, height, color, background) {
+        getInitials(name, width, height, background) {
             let path = '/avatars/initials';
             let payload = {};
             if (typeof name !== 'undefined') {
@@ -1543,9 +1554,6 @@
             }
             if (typeof height !== 'undefined') {
                 payload['height'] = height;
-            }
-            if (typeof color !== 'undefined') {
-                payload['color'] = color;
             }
             if (typeof background !== 'undefined') {
                 payload['background'] = background;
@@ -1599,15 +1607,8 @@
     }
 
     class Databases extends Service {
-        constructor(client, databaseId) {
+        constructor(client) {
             super(client);
-            this.databaseId = databaseId;
-        }
-        setDatabaseId(databaseId) {
-            this.databaseId = databaseId;
-        }
-        getDatabaseId() {
-            return this.databaseId;
         }
         /**
          * List Documents
@@ -1617,44 +1618,24 @@
          * return a list of all of documents belonging to the provided collectionId.
          * [Learn more about different API modes](/docs/admin).
          *
+         * @param {string} databaseId
          * @param {string} collectionId
          * @param {string[]} queries
-         * @param {number} limit
-         * @param {number} offset
-         * @param {string} cursor
-         * @param {string} cursorDirection
-         * @param {string[]} orderAttributes
-         * @param {string[]} orderTypes
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        listDocuments(collectionId, queries, limit, offset, cursor, cursorDirection, orderAttributes, orderTypes) {
+        listDocuments(databaseId, collectionId, queries) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (typeof databaseId === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "databaseId"');
+                }
                 if (typeof collectionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "collectionId"');
                 }
-                let path = '/databases/{databaseId}/collections/{collectionId}/documents'.replace('{databaseId}', this.databaseId).replace('{collectionId}', collectionId);
+                let path = '/databases/{databaseId}/collections/{collectionId}/documents'.replace('{databaseId}', databaseId).replace('{collectionId}', collectionId);
                 let payload = {};
                 if (typeof queries !== 'undefined') {
                     payload['queries'] = queries;
-                }
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
-                }
-                if (typeof cursor !== 'undefined') {
-                    payload['cursor'] = cursor;
-                }
-                if (typeof cursorDirection !== 'undefined') {
-                    payload['cursorDirection'] = cursorDirection;
-                }
-                if (typeof orderAttributes !== 'undefined') {
-                    payload['orderAttributes'] = orderAttributes;
-                }
-                if (typeof orderTypes !== 'undefined') {
-                    payload['orderTypes'] = orderTypes;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -1667,19 +1648,22 @@
          *
          * Create a new Document. Before using this route, you should create a new
          * collection resource using either a [server
-         * integration](/docs/server/database#databaseCreateCollection) API or
+         * integration](/docs/server/databases#databasesCreateCollection) API or
          * directly from your database console.
          *
+         * @param {string} databaseId
          * @param {string} collectionId
          * @param {string} documentId
          * @param {Omit<Document, keyof Models.Document>} data
-         * @param {string[]} read
-         * @param {string[]} write
+         * @param {string[]} permissions
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        createDocument(collectionId, documentId, data, read, write) {
+        createDocument(databaseId, collectionId, documentId, data, permissions) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (typeof databaseId === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "databaseId"');
+                }
                 if (typeof collectionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "collectionId"');
                 }
@@ -1689,7 +1673,7 @@
                 if (typeof data === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "data"');
                 }
-                let path = '/databases/{databaseId}/collections/{collectionId}/documents'.replace('{databaseId}', this.databaseId).replace('{collectionId}', collectionId);
+                let path = '/databases/{databaseId}/collections/{collectionId}/documents'.replace('{databaseId}', databaseId).replace('{collectionId}', collectionId);
                 let payload = {};
                 if (typeof documentId !== 'undefined') {
                     payload['documentId'] = documentId;
@@ -1697,11 +1681,8 @@
                 if (typeof data !== 'undefined') {
                     payload['data'] = data;
                 }
-                if (typeof read !== 'undefined') {
-                    payload['read'] = read;
-                }
-                if (typeof write !== 'undefined') {
-                    payload['write'] = write;
+                if (typeof permissions !== 'undefined') {
+                    payload['permissions'] = permissions;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('post', uri, {
@@ -1715,20 +1696,24 @@
          * Get a document by its unique ID. This endpoint response returns a JSON
          * object with the document data.
          *
+         * @param {string} databaseId
          * @param {string} collectionId
          * @param {string} documentId
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getDocument(collectionId, documentId) {
+        getDocument(databaseId, collectionId, documentId) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (typeof databaseId === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "databaseId"');
+                }
                 if (typeof collectionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "collectionId"');
                 }
                 if (typeof documentId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "documentId"');
                 }
-                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', this.databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
+                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
                 let payload = {};
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -1742,32 +1727,32 @@
          * Update a document by its unique ID. Using the patch method you can pass
          * only specific fields that will get updated.
          *
+         * @param {string} databaseId
          * @param {string} collectionId
          * @param {string} documentId
          * @param {Partial<Omit<Document, keyof Models.Document>>} data
-         * @param {string[]} read
-         * @param {string[]} write
+         * @param {string[]} permissions
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        updateDocument(collectionId, documentId, data, read, write) {
+        updateDocument(databaseId, collectionId, documentId, data, permissions) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (typeof databaseId === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "databaseId"');
+                }
                 if (typeof collectionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "collectionId"');
                 }
                 if (typeof documentId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "documentId"');
                 }
-                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', this.databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
+                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
                 let payload = {};
                 if (typeof data !== 'undefined') {
                     payload['data'] = data;
                 }
-                if (typeof read !== 'undefined') {
-                    payload['read'] = read;
-                }
-                if (typeof write !== 'undefined') {
-                    payload['write'] = write;
+                if (typeof permissions !== 'undefined') {
+                    payload['permissions'] = permissions;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('patch', uri, {
@@ -1780,20 +1765,24 @@
          *
          * Delete a document by its unique ID.
          *
+         * @param {string} databaseId
          * @param {string} collectionId
          * @param {string} documentId
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        deleteDocument(collectionId, documentId) {
+        deleteDocument(databaseId, collectionId, documentId) {
             return __awaiter(this, void 0, void 0, function* () {
+                if (typeof databaseId === 'undefined') {
+                    throw new AppwriteException('Missing required parameter: "databaseId"');
+                }
                 if (typeof collectionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "collectionId"');
                 }
                 if (typeof documentId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "documentId"');
                 }
-                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', this.databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
+                let path = '/databases/{databaseId}/collections/{collectionId}/documents/{documentId}'.replace('{databaseId}', databaseId).replace('{collectionId}', collectionId).replace('{documentId}', documentId);
                 let payload = {};
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('delete', uri, {
@@ -1804,34 +1793,8 @@
     }
 
     class Functions extends Service {
-        /**
-         * Retry Build
-         *
-         *
-         * @param {string} functionId
-         * @param {string} deploymentId
-         * @param {string} buildId
-         * @throws {AppwriteException}
-         * @returns {Promise}
-         */
-        retryBuild(functionId, deploymentId, buildId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (typeof functionId === 'undefined') {
-                    throw new AppwriteException('Missing required parameter: "functionId"');
-                }
-                if (typeof deploymentId === 'undefined') {
-                    throw new AppwriteException('Missing required parameter: "deploymentId"');
-                }
-                if (typeof buildId === 'undefined') {
-                    throw new AppwriteException('Missing required parameter: "buildId"');
-                }
-                let path = '/functions/{functionId}/deployments/{deploymentId}/builds/{buildId}'.replace('{functionId}', functionId).replace('{deploymentId}', deploymentId).replace('{buildId}', buildId);
-                let payload = {};
-                const uri = new URL(this.client.config.endpoint + path);
-                return yield this.client.call('post', uri, {
-                    'content-type': 'application/json',
-                }, payload);
-            });
+        constructor(client) {
+            super(client);
         }
         /**
          * List Executions
@@ -1842,35 +1805,23 @@
          * different API modes](/docs/admin).
          *
          * @param {string} functionId
-         * @param {number} limit
-         * @param {number} offset
+         * @param {string[]} queries
          * @param {string} search
-         * @param {string} cursor
-         * @param {string} cursorDirection
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        listExecutions(functionId, limit, offset, search, cursor, cursorDirection) {
+        listExecutions(functionId, queries, search) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof functionId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "functionId"');
                 }
                 let path = '/functions/{functionId}/executions'.replace('{functionId}', functionId);
                 let payload = {};
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
+                if (typeof queries !== 'undefined') {
+                    payload['queries'] = queries;
                 }
                 if (typeof search !== 'undefined') {
                     payload['search'] = search;
-                }
-                if (typeof cursor !== 'undefined') {
-                    payload['cursor'] = cursor;
-                }
-                if (typeof cursorDirection !== 'undefined') {
-                    payload['cursorDirection'] = cursorDirection;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -1940,16 +1891,21 @@
     }
 
     class Graphql extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * GraphQL Endpoint
          *
          * Execute a GraphQL query.
          *
-         * @param {object} query
+         * @param {string} query
+         * @param {string} operationName
+         * @param {string} variables
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        query(query) {
+        get(query, operationName, variables) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof query === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "query"');
@@ -1957,12 +1913,17 @@
                 let path = '/graphql';
                 let payload = {};
                 if (typeof query !== 'undefined') {
-                    payload['query'] = JSON.stringify(query);
+                    payload['query'] = query;
+                }
+                if (typeof operationName !== 'undefined') {
+                    payload['operationName'] = operationName;
+                }
+                if (typeof variables !== 'undefined') {
+                    payload['variables'] = variables;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
                     'content-type': 'application/json',
-                    'x-sdk-graphql': 'true',
                 }, payload);
             });
         }
@@ -1975,7 +1936,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        mutate(query) {
+        post(query) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof query === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "query"');
@@ -1983,18 +1944,21 @@
                 let path = '/graphql';
                 let payload = {};
                 if (typeof query !== 'undefined') {
-                    payload['query'] = JSON.stringify(query);
+                    payload['query'] = query;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('post', uri, {
-                    'content-type': 'application/json',
                     'x-sdk-graphql': 'true',
+                    'content-type': 'application/json',
                 }, payload);
             });
         }
     }
 
     class Locale extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * Get User Locale
          *
@@ -2027,7 +1991,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getContinents() {
+        listContinents() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/continents';
                 let payload = {};
@@ -2046,7 +2010,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getCountries() {
+        listCountries() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/countries';
                 let payload = {};
@@ -2065,7 +2029,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getCountriesEU() {
+        listCountriesEU() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/countries/eu';
                 let payload = {};
@@ -2084,7 +2048,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getCountriesPhones() {
+        listCountriesPhones() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/countries/phones';
                 let payload = {};
@@ -2104,7 +2068,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getCurrencies() {
+        listCurrencies() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/currencies';
                 let payload = {};
@@ -2123,7 +2087,7 @@
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getLanguages() {
+        listLanguages() {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/locale/languages';
                 let payload = {};
@@ -2136,6 +2100,9 @@
     }
 
     class Storage extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * List Files
          *
@@ -2144,39 +2111,23 @@
          * project's files. [Learn more about different API modes](/docs/admin).
          *
          * @param {string} bucketId
+         * @param {string[]} queries
          * @param {string} search
-         * @param {number} limit
-         * @param {number} offset
-         * @param {string} cursor
-         * @param {string} cursorDirection
-         * @param {string} orderType
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        listFiles(bucketId, search, limit, offset, cursor, cursorDirection, orderType) {
+        listFiles(bucketId, queries, search) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof bucketId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "bucketId"');
                 }
                 let path = '/storage/buckets/{bucketId}/files'.replace('{bucketId}', bucketId);
                 let payload = {};
+                if (typeof queries !== 'undefined') {
+                    payload['queries'] = queries;
+                }
                 if (typeof search !== 'undefined') {
                     payload['search'] = search;
-                }
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
-                }
-                if (typeof cursor !== 'undefined') {
-                    payload['cursor'] = cursor;
-                }
-                if (typeof cursorDirection !== 'undefined') {
-                    payload['cursorDirection'] = cursorDirection;
-                }
-                if (typeof orderType !== 'undefined') {
-                    payload['orderType'] = orderType;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -2189,8 +2140,8 @@
          *
          * Create a new file. Before using this route, you should create a new bucket
          * resource using either a [server
-         * integration](/docs/server/database#storageCreateBucket) API or directly
-         * from your Appwrite console.
+         * integration](/docs/server/storage#storageCreateBucket) API or directly from
+         * your Appwrite console.
          *
          * Larger files should be uploaded using multiple requests with the
          * [content-range](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range)
@@ -2209,12 +2160,11 @@
          * @param {string} bucketId
          * @param {string} fileId
          * @param {File} file
-         * @param {string[]} read
-         * @param {string[]} write
+         * @param {string[]} permissions
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        createFile(bucketId, fileId, file, read, write, onProgress = (progress) => { }) {
+        createFile(bucketId, fileId, file, permissions, onProgress = (progress) => { }) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof bucketId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "bucketId"');
@@ -2233,11 +2183,8 @@
                 if (typeof file !== 'undefined') {
                     payload['file'] = file;
                 }
-                if (typeof read !== 'undefined') {
-                    payload['read'] = read;
-                }
-                if (typeof write !== 'undefined') {
-                    payload['write'] = write;
+                if (typeof permissions !== 'undefined') {
+                    payload['permissions'] = permissions;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 if (!(file instanceof File)) {
@@ -2325,12 +2272,11 @@
          *
          * @param {string} bucketId
          * @param {string} fileId
-         * @param {string[]} read
-         * @param {string[]} write
+         * @param {string[]} permissions
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        updateFile(bucketId, fileId, read, write) {
+        updateFile(bucketId, fileId, permissions) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof bucketId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "bucketId"');
@@ -2340,11 +2286,8 @@
                 }
                 let path = '/storage/buckets/{bucketId}/files/{fileId}'.replace('{bucketId}', bucketId).replace('{fileId}', fileId);
                 let payload = {};
-                if (typeof read !== 'undefined') {
-                    payload['read'] = read;
-                }
-                if (typeof write !== 'undefined') {
-                    payload['write'] = write;
+                if (typeof permissions !== 'undefined') {
+                    payload['permissions'] = permissions;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('put', uri, {
@@ -2512,6 +2455,9 @@
     }
 
     class Teams extends Service {
+        constructor(client) {
+            super(client);
+        }
         /**
          * List Teams
          *
@@ -2521,36 +2467,20 @@
          * In admin mode, this endpoint returns a list of all the teams in the current
          * project. [Learn more about different API modes](/docs/admin).
          *
+         * @param {string[]} queries
          * @param {string} search
-         * @param {number} limit
-         * @param {number} offset
-         * @param {string} cursor
-         * @param {string} cursorDirection
-         * @param {string} orderType
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        list(search, limit, offset, cursor, cursorDirection, orderType) {
+        list(queries, search) {
             return __awaiter(this, void 0, void 0, function* () {
                 let path = '/teams';
                 let payload = {};
+                if (typeof queries !== 'undefined') {
+                    payload['queries'] = queries;
+                }
                 if (typeof search !== 'undefined') {
                     payload['search'] = search;
-                }
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
-                }
-                if (typeof cursor !== 'undefined') {
-                    payload['cursor'] = cursor;
-                }
-                if (typeof cursorDirection !== 'undefined') {
-                    payload['cursorDirection'] = cursorDirection;
-                }
-                if (typeof orderType !== 'undefined') {
-                    payload['orderType'] = orderType;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -2672,45 +2602,29 @@
             });
         }
         /**
-         * Get Team Memberships
+         * List Team Memberships
          *
          * Use this endpoint to list a team's members using the team's ID. All team
          * members have read access to this endpoint.
          *
          * @param {string} teamId
+         * @param {string[]} queries
          * @param {string} search
-         * @param {number} limit
-         * @param {number} offset
-         * @param {string} cursor
-         * @param {string} cursorDirection
-         * @param {string} orderType
          * @throws {AppwriteException}
          * @returns {Promise}
          */
-        getMemberships(teamId, search, limit, offset, cursor, cursorDirection, orderType) {
+        listMemberships(teamId, queries, search) {
             return __awaiter(this, void 0, void 0, function* () {
                 if (typeof teamId === 'undefined') {
                     throw new AppwriteException('Missing required parameter: "teamId"');
                 }
                 let path = '/teams/{teamId}/memberships'.replace('{teamId}', teamId);
                 let payload = {};
+                if (typeof queries !== 'undefined') {
+                    payload['queries'] = queries;
+                }
                 if (typeof search !== 'undefined') {
                     payload['search'] = search;
-                }
-                if (typeof limit !== 'undefined') {
-                    payload['limit'] = limit;
-                }
-                if (typeof offset !== 'undefined') {
-                    payload['offset'] = offset;
-                }
-                if (typeof cursor !== 'undefined') {
-                    payload['cursor'] = cursor;
-                }
-                if (typeof cursorDirection !== 'undefined') {
-                    payload['cursorDirection'] = cursorDirection;
-                }
-                if (typeof orderType !== 'undefined') {
-                    payload['orderType'] = orderType;
                 }
                 const uri = new URL(this.client.config.endpoint + path);
                 return yield this.client.call('get', uri, {
@@ -2917,6 +2831,63 @@
         }
     }
 
+    class Permission {
+    }
+    Permission.read = (role) => {
+        return `read("${role}")`;
+    };
+    Permission.write = (role) => {
+        return `write("${role}")`;
+    };
+    Permission.create = (role) => {
+        return `create("${role}")`;
+    };
+    Permission.update = (role) => {
+        return `update("${role}")`;
+    };
+    Permission.delete = (role) => {
+        return `delete("${role}")`;
+    };
+
+    class Role {
+        static any() {
+            return 'any';
+        }
+        static user(id, status = '') {
+            if (status === '') {
+                return `user:${id}`;
+            }
+            return `user:${id}/${status}`;
+        }
+        static users(status = '') {
+            if (status === '') {
+                return 'users';
+            }
+            return `users/${status}`;
+        }
+        static guests() {
+            return 'guests';
+        }
+        static team(id, role = '') {
+            if (role === '') {
+                return `team:${id}`;
+            }
+            return `team:${id}/${role}`;
+        }
+        static member(id) {
+            return `member:${id}`;
+        }
+    }
+
+    class ID {
+        static custom(id) {
+            return id;
+        }
+        static unique() {
+            return 'unique()';
+        }
+    }
+
     exports.Account = Account;
     exports.AppwriteException = AppwriteException;
     exports.Avatars = Avatars;
@@ -2924,8 +2895,11 @@
     exports.Databases = Databases;
     exports.Functions = Functions;
     exports.Graphql = Graphql;
+    exports.ID = ID;
     exports.Locale = Locale;
+    exports.Permission = Permission;
     exports.Query = Query;
+    exports.Role = Role;
     exports.Storage = Storage;
     exports.Teams = Teams;
 
